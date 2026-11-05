@@ -33,13 +33,35 @@
     "#80b918", "#bc4749", "#386641", "#5c4d7a", "#d62828"
   ];
 
+  // Sweet zones reduced 30% across the board
   const STAR_ACCURACY = {
-    1: { sweetWidth: 0.06, forgiveness: 0.04, label: "BRICK MACHINE" },
-    2: { sweetWidth: 0.09, forgiveness: 0.07, label: "STREAKY" },
-    3: { sweetWidth: 0.12, forgiveness: 0.10, label: "SOLID" },
-    4: { sweetWidth: 0.16, forgiveness: 0.14, label: "SHARP" },
-    5: { sweetWidth: 0.22, forgiveness: 0.18, label: "MONEY" }
+    1: { sweetWidth: 0.042, forgiveness: 0.04, label: "BRICK MACHINE" },
+    2: { sweetWidth: 0.063, forgiveness: 0.07, label: "STREAKY" },
+    3: { sweetWidth: 0.084, forgiveness: 0.10, label: "SOLID" },
+    4: { sweetWidth: 0.112, forgiveness: 0.14, label: "SHARP" },
+    5: { sweetWidth: 0.154, forgiveness: 0.18, label: "MONEY" }
   };
+
+  const FIVE_STAR_NAMES = [
+    "Lucien Daniel",
+    "Baby Flora",
+    "Kassidy Khloe",
+    "Violet Kiera",
+    "Michael Jordan"
+  ];
+
+  const FOUR_STAR_NAMES = [
+    "Lebron James",
+    "Shawn Kemp",
+    "Anthony Edwards",
+    "Vince Carter",
+    "Kobe Bryant",
+    "Steph Curry",
+    "SGA",
+    "Kevin Durant",
+    "Scottie Barnes",
+    "Kawhi Leonard"
+  ];
 
   const canvas = document.getElementById("court");
   const ctx = canvas.getContext("2d");
@@ -142,13 +164,15 @@
     return lum > 0.55 ? "#111111" : "#ffffff";
   }
 
-  function makePlayer(stars, usedNames) {
+  function makePlayer(stars, usedNames, fixedName) {
     const cfg = STAR_ACCURACY[stars];
     const sweetCenter = 0.62 + (Math.random() * 0.08 - 0.04);
     const jerseyColor = pick(JERSEY_COLORS);
+    const name = fixedName || uniqueName(usedNames);
+    if (fixedName) usedNames.add(fixedName.toUpperCase());
     return {
       id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
-      name: uniqueName(usedNames),
+      name,
       stars,
       number: randInt(0, 99),
       jerseyColor,
@@ -162,15 +186,15 @@
 
   function buildRoster() {
     const used = new Set();
-    // 1 rare · 2 common · 3 uncommon · 4 rare · 5 very rare
-    const distribution = [
-      ...Array(8).fill(1),
-      ...Array(42).fill(2),
-      ...Array(24).fill(3),
-      ...Array(16).fill(4),
-      ...Array(10).fill(5)
+    // 1–3 common filler · exactly 10 named 4★ · exactly 5 named 5★
+    const roster = [
+      ...FIVE_STAR_NAMES.map((name) => makePlayer(5, used, name)),
+      ...FOUR_STAR_NAMES.map((name) => makePlayer(4, used, name)),
+      ...Array(28).fill(1).map(() => makePlayer(1, used)),
+      ...Array(37).fill(2).map(() => makePlayer(2, used)),
+      ...Array(20).fill(3).map(() => makePlayer(3, used))
     ];
-    return shuffle(distribution).map((stars) => makePlayer(stars, used));
+    return shuffle(roster);
   }
 
   function starString(n) {
