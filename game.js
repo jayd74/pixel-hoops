@@ -43,24 +43,30 @@
   };
 
   const FIVE_STAR_NAMES = [
-    "Lucien Daniel",
-    "Baby Flora",
-    "Kassidy Khloe",
-    "Violet Kiera",
-    "Michael Jordan"
+    { name: "Lucien Daniel", number: 10 },
+    { name: "Baby Flora", number: 9 },
+    { name: "Kassidy Khloe", number: 14 },
+    { name: "Violet Kiera", number: 17 },
+    { name: "Michael Jordan", number: 23 },
+    { name: "Green Man", number: 33 },
+    { name: "Ultra Shot", number: 45 },
+    { name: "Mega Jumper", number: 50 },
+    { name: "Sonion man", number: 77 },
+    { name: "Jason Du", number: 7 },
+    { name: "Veronica Wong", number: 9 }
   ];
 
   const FOUR_STAR_NAMES = [
-    "Lebron James",
-    "Shawn Kemp",
-    "Anthony Edwards",
-    "Vince Carter",
-    "Kobe Bryant",
-    "Steph Curry",
-    "SGA",
-    "Kevin Durant",
-    "Scottie Barnes",
-    "Kawhi Leonard"
+    { name: "Lebron James", number: 6 },
+    { name: "Shawn Kemp", number: 40 },
+    { name: "Anthony Edwards", number: 5 },
+    { name: "Vince Carter", number: 15 },
+    { name: "Kobe Bryant", number: 24 },
+    { name: "Steph Curry", number: 30 },
+    { name: "SGA", number: 2 },
+    { name: "Kevin Durant", number: 35 },
+    { name: "Scottie Barnes", number: 4 },
+    { name: "Kawhi Leonard", number: 2 }
   ];
 
   const canvas = document.getElementById("court");
@@ -164,17 +170,19 @@
     return lum > 0.55 ? "#111111" : "#ffffff";
   }
 
-  function makePlayer(stars, usedNames, fixedName) {
+  function makePlayer(stars, usedNames, fixed) {
     const cfg = STAR_ACCURACY[stars];
     const sweetCenter = 0.62 + (Math.random() * 0.08 - 0.04);
     const jerseyColor = pick(JERSEY_COLORS);
+    const fixedName = typeof fixed === "string" ? fixed : fixed?.name;
     const name = fixedName || uniqueName(usedNames);
     if (fixedName) usedNames.add(fixedName.toUpperCase());
+    const number = fixed && typeof fixed.number === "number" ? fixed.number : randInt(0, 99);
     return {
       id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
       name,
       stars,
-      number: randInt(0, 99),
+      number,
       jerseyColor,
       numberColor: contrastText(jerseyColor),
       sweetWidth: cfg.sweetWidth,
@@ -188,8 +196,8 @@
     const used = new Set();
     // 1–3 common filler · exactly 10 named 4★ · exactly 5 named 5★
     const roster = [
-      ...FIVE_STAR_NAMES.map((name) => makePlayer(5, used, name)),
-      ...FOUR_STAR_NAMES.map((name) => makePlayer(4, used, name)),
+      ...FIVE_STAR_NAMES.map((player) => makePlayer(5, used, player)),
+      ...FOUR_STAR_NAMES.map((player) => makePlayer(4, used, player)),
       ...Array(28).fill(1).map(() => makePlayer(1, used)),
       ...Array(37).fill(2).map(() => makePlayer(2, used)),
       ...Array(20).fill(3).map(() => makePlayer(3, used))
